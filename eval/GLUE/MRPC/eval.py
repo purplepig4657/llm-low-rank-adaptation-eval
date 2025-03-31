@@ -17,32 +17,8 @@ class MRPCEval(GLUEEvalCommon):
     DATASET_NAME = "glue"
     TASK_NAME = "mrpc"
 
-    def __init__(
-            self, 
-            model_name: str = "roberta-base", 
-            low_rank_adaptation: str = "LoRA",
-            lora_r: int = 128,
-            lora_alpha: int = 128,
-            lora_dropout: float = 0.0,
-            num_epochs: int = 3,
-            learning_rate: float = 4e-5,
-            batch_size: int = 32,
-            max_length: int = 128,
-            lr_scheduler: str = "linear",
-        ):
-
-        super().__init__(
-            model_name=model_name,
-            low_rank_adaptation=low_rank_adaptation,
-            lora_r=lora_r,
-            lora_alpha=lora_alpha,
-            lora_dropout=lora_dropout,
-            num_epochs=num_epochs,
-            learning_rate=learning_rate,
-            batch_size=batch_size,
-            max_length=max_length,
-            lr_scheduler=lr_scheduler,
-        )
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
 
         self.tokenizer = AutoTokenizer.from_pretrained(self.model_name)
         self.model = AutoModelForSequenceClassification.from_pretrained(self.model_name, num_labels=2)
@@ -71,7 +47,7 @@ class MRPCEval(GLUEEvalCommon):
             collate_fn=self.data_collator
         )
 
-        self.optimizer = AdamW(self.model.parameters(), lr=learning_rate)
+        self.optimizer = AdamW(self.model.parameters(), lr=self.learning_rate)
 
         self.num_training_steps = self.num_epochs * len(self.train_dataloader)
 

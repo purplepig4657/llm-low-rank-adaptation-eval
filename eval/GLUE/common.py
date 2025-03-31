@@ -15,6 +15,7 @@ class GLUEEvalCommon:
             batch_size: int = 32, 
             max_length: int = 128, 
             lr_scheduler: str = "linear",
+            apply_low_rank_adaptation: bool = True,
             seed: int = 42,
             device: str = "cuda" if torch.cuda.is_available() else "cpu",
         ):
@@ -30,8 +31,12 @@ class GLUEEvalCommon:
         self.lr_scheduler = lr_scheduler
         self.seed = seed
         self.device = device
+        self.apply_low_rank_adaptation = apply_low_rank_adaptation
 
     def apply_low_rank_adaptation(self, model):
+        if not self.apply_low_rank_adaptation:
+            return model
+
         if self.low_rank_adaptation == "LoRA":
             model = apply_lora(
                 model, 
