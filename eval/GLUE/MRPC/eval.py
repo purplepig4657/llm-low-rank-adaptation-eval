@@ -15,9 +15,9 @@ from transformers import AutoTokenizer, AutoModelForSequenceClassification
 
 from eval.GLUE.common import GLUEEvalCommon
 
-class CoLAEval(GLUEEvalCommon):
+class MRPCEval(GLUEEvalCommon):
     DATASET_NAME = "glue"
-    TASK_NAME = "cola"
+    TASK_NAME = "mrpc"
 
     def __init__(
             self, 
@@ -53,9 +53,9 @@ class CoLAEval(GLUEEvalCommon):
 
         self.dataset = load_dataset(self.DATASET_NAME, self.TASK_NAME)
 
-        self.cola_metric = evaluate.load(self.DATASET_NAME, self.TASK_NAME)
+        self.mrpc_metric = evaluate.load(self.DATASET_NAME, self.TASK_NAME)
 
-        self.tokenized_dataset = self.dataset.map(self.tokenize_function, batched=True, remove_columns=["sentence", "idx"])
+        self.tokenized_dataset = self.dataset.map(self.tokenize_function, batched=True, remove_columns=["sentence1", "sentence2", "idx"])
 
         self.data_collator = DataCollatorWithPadding(tokenizer=self.tokenizer, padding=True, return_tensors="pt")
 
@@ -76,7 +76,8 @@ class CoLAEval(GLUEEvalCommon):
 
     def tokenize_function(self, example):
         return self.tokenizer(
-            example["sentence"], 
+            example["sentence1"], 
+            example["sentence2"], 
             padding="max_length",
             truncation=True,
             max_length=self.max_length,
@@ -110,7 +111,7 @@ class CoLAEval(GLUEEvalCommon):
 
             logits = outputs.logits
             predictions = torch.argmax(logits, dim=-1)
-            self.cola_metric.add_batch(predictions=predictions, references=batch["labels"])
+            self.mrpc_metric.add_batch(predictions=predictions, references=batch["labels"])
 
-        result = self.cola_metric.compute()
+        result = self.mrpc_metric.compute()
         print(result)
