@@ -1,10 +1,8 @@
 import torch
-import torch.nn as nn
 from transformers import get_scheduler
 from torch.optim import AdamW
 from tqdm.auto import tqdm
 
-import numpy as np
 from datasets import load_dataset
 import evaluate
 
@@ -55,12 +53,23 @@ class MRPCEval(GLUEEvalCommon):
 
         self.mrpc_metric = evaluate.load(self.DATASET_NAME, self.TASK_NAME)
 
-        self.tokenized_dataset = self.dataset.map(self.tokenize_function, batched=True, remove_columns=["sentence1", "sentence2", "idx"])
+        self.tokenized_dataset = self.dataset.map(
+            self.tokenize_function, batched=True, remove_columns=["sentence1", "sentence2", "idx"])
 
-        self.data_collator = DataCollatorWithPadding(tokenizer=self.tokenizer, padding=True, return_tensors="pt")
+        self.data_collator = DataCollatorWithPadding(
+            tokenizer=self.tokenizer, padding=True, return_tensors="pt")
 
-        self.train_dataloader = DataLoader(self.tokenized_dataset["train"], shuffle=True, batch_size=self.batch_size, collate_fn=self.data_collator)
-        self.eval_dataloader = DataLoader(self.tokenized_dataset["validation"], batch_size=self.batch_size, collate_fn=self.data_collator)
+        self.train_dataloader = DataLoader(
+            self.tokenized_dataset["train"], 
+            shuffle=True, 
+            batch_size=self.batch_size, 
+            collate_fn=self.data_collator
+        )
+        self.eval_dataloader = DataLoader(
+            self.tokenized_dataset["validation"], 
+            batch_size=self.batch_size, 
+            collate_fn=self.data_collator
+        )
 
         self.optimizer = AdamW(self.model.parameters(), lr=learning_rate)
 

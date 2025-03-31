@@ -13,9 +13,9 @@ from transformers import AutoTokenizer, AutoModelForSequenceClassification
 
 from eval.GLUE.common import GLUEEvalCommon
 
-class CoLAEval(GLUEEvalCommon):
+class STSBEval(GLUEEvalCommon):
     DATASET_NAME = "glue"
-    TASK_NAME = "cola"
+    TASK_NAME = "stsb"
 
     def __init__(
             self, 
@@ -45,16 +45,16 @@ class CoLAEval(GLUEEvalCommon):
         )
 
         self.tokenizer = AutoTokenizer.from_pretrained(self.model_name)
-        self.model = AutoModelForSequenceClassification.from_pretrained(self.model_name, num_labels=2)
+        self.model = AutoModelForSequenceClassification.from_pretrained(self.model_name, num_labels=1)
 
         self.model = self.apply_low_rank_adaptation(self.model)
 
         self.dataset = load_dataset(self.DATASET_NAME, self.TASK_NAME)
 
-        self.cola_metric = evaluate.load(self.DATASET_NAME, self.TASK_NAME)
+        self.stsb_metric = evaluate.load(self.DATASET_NAME, self.TASK_NAME)
 
         self.tokenized_dataset = self.dataset.map(
-            self.tokenize_function, batched=True, remove_columns=["sentence", "idx"])
+            self.tokenize_function, batched=True, remove_columns=["sentence1", "sentence2", "idx"])
 
         self.data_collator = DataCollatorWithPadding(
             tokenizer=self.tokenizer, padding=True, return_tensors="pt")
@@ -85,7 +85,8 @@ class CoLAEval(GLUEEvalCommon):
 
     def tokenize_function(self, example):
         return self.tokenizer(
-            example["sentence"], 
+            example["sentence1"], 
+            example["sentence2"], 
             padding="max_length",
             truncation=True,
             max_length=self.max_length,
@@ -118,8 +119,8 @@ class CoLAEval(GLUEEvalCommon):
                 outputs = self.model(**batch)
 
             logits = outputs.logits
-            predictions = torch.argmax(logits, dim=-1)
-            self.cola_metric.add_batch(predictions=predictions, references=batch["labels"])
+            predictions = torch.squeeze(logits)
+            self.stsb_metric.add_batch(predictions=predictions, references=batch["labels"])
 
-        result = self.cola_metric.compute()
+        result = self.stsb_metric.compute()
         print(result)
