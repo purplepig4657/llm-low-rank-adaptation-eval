@@ -11,12 +11,11 @@ import evaluate
 from torch.utils.data import DataLoader
 from transformers import DataCollatorWithPadding
 
-from low_rank_adaptations import apply_lora, print_trainable_parameters
-
-from peft import get_peft_model, LoraConfig, TaskType
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
 
-class CoLAEval:
+from common import GLUEEvalCommon
+
+class CoLAEval(GLUEEvalCommon):
     DATASET_NAME = "glue"
     TASK_NAME = "cola"
 
@@ -34,36 +33,25 @@ class CoLAEval:
             max_length: int = 128,
             lr_scheduler: str = "linear",
         ):
-        self.model_name = model_name
-        self.tokenizer = AutoTokenizer.from_pretrained(model_name)
-        self.model = AutoModelForSequenceClassification.from_pretrained(model_name)
 
-        self.num_epochs = num_epochs
-        self.max_length = max_length
-        self.lr_scheduler = lr_scheduler
-        self.batch_size = batch_size
+        super().__init__(
+            model_name=model_name,
+            low_rank_adaptation=low_rank_adaptation,
+            lora_r=lora_r,
+            lora_alpha=lora_alpha,
+            lora_dropout=lora_dropout,
+            lora_target_modules=lora_target_modules,
+            num_epochs=num_epochs,
+            learning_rate=learning_rate,
+            batch_size=batch_size,
+            max_length=max_length,
+            lr_scheduler=lr_scheduler,
+        )
 
-        if low_rank_adaptation == "LoRA":
-            self.model = apply_lora(self.model, r=lora_r, alpha=lora_alpha, dropout=lora_dropout)
-        elif low_rank_adaptation == "LoRA_HF":
-            self.linear_layer_names = []
-            for name, module in self.model.named_modules():
-                if isinstance(module, nn.Linear):
-                    self.linear_layer_names.append(name)
+        self.tokenizer = AutoTokenizer.from_pretrained(self.model_name)
+        self.model = AutoModelForSequenceClassification.from_pretrained(self.model_name)
 
-            peft_config = LoraConfig(
-                task_type=TaskType.SEQ_CLS,
-                r=lora_r,
-                lora_alpha=lora_alpha,
-                lora_dropout=lora_dropout,
-                target_modules=lora_target_modules,
-                bias="none",
-            )
-            self.model = get_peft_model(self.model, peft_config)
-        else:
-            raise ValueError(f"Invalid or not supported low rank adaptation: {low_rank_adaptation}")
-
-        print_trainable_parameters(self.model)
+        self.model = self.apply_low_rank_adaptation(self.model)
 
         self.dataset = load_dataset(self.DATASET_NAME, self.TASK_NAME)
 
@@ -78,7 +66,6 @@ class CoLAEval:
 
         self.optimizer = AdamW(self.model.parameters(), lr=learning_rate)
 
-
         self.num_training_steps = self.num_epochs * len(self.train_dataloader)
 
         self.lr_scheduler = get_scheduler(
@@ -87,8 +74,6 @@ class CoLAEval:
             num_warmup_steps=0,
             num_training_steps=self.num_training_steps,
         )
-
-        self.device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
 
 
     def tokenize_function(self, example):
