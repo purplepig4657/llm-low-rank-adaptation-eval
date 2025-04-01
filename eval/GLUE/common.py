@@ -37,6 +37,11 @@ class GLUEEvalCommon:
     def apply_low_rank_adaptation(self, model):
         if not self.apply_lra:
             return model
+        
+        self.linear_layer_names = []
+        for name, module in self.model.named_modules():
+            if isinstance(module, nn.Linear):
+                self.linear_layer_names.append(name)
 
         if self.low_rank_adaptation == "LoRA":
             model = apply_lora(
@@ -46,16 +51,12 @@ class GLUEEvalCommon:
                 self.lora_dropout, 
             )
         elif self.low_rank_adaptation == "LoRA_HF":
-            self.linear_layer_names = []
-            for name, module in self.model.named_modules():
-                if isinstance(module, nn.Linear):
-                    self.linear_layer_names.append(name)
-
             peft_config = LoraConfig(
                 task_type=TaskType.SEQ_CLS,
                 r=self.lora_r,
                 lora_alpha=self.lora_alpha,
                 lora_dropout=self.lora_dropout,
+                target_modules=self.linear_layer_names,
                 bias="none",
             )
             model = get_peft_model(model, peft_config)
@@ -67,17 +68,13 @@ class GLUEEvalCommon:
                 self.lora_dropout, 
             )
         elif self.low_rank_adaptation == "PiSSA_HF":
-            self.linear_layer_names = []
-            for name, module in self.model.named_modules():
-                if isinstance(module, nn.Linear):
-                    self.linear_layer_names.append(name)
-
             peft_config = LoraConfig(
                 task_type=TaskType.SEQ_CLS,
                 r=self.lora_r,
                 lora_alpha=self.lora_alpha,
                 lora_dropout=self.lora_dropout,
                 init_lora_weights="pissa",
+                target_modules=self.linear_layer_names,
                 bias="none",
             )
             model = get_peft_model(model, peft_config)
