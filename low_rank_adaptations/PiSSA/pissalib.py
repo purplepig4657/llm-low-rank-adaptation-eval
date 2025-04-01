@@ -5,9 +5,16 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from torch import transpose
 import math
 from typing import Optional, List
+
+def transpose(weight, fan_in_fan_out):
+    if not fan_in_fan_out:
+        return weight
+
+    if isinstance(weight, torch.nn.Parameter):
+        return torch.nn.Parameter(weight.T)
+    return weight.T
 
 class LoRALayer():
     def __init__(
@@ -105,8 +112,8 @@ class Embedding(nn.Embedding, LoRALayer):
 
         lora_A = torch.diag(torch.sqrt(Sr)) @ Uhr
         lora_B = Vr @ torch.diag(torch.sqrt(Sr))
-        self.lora_A.weight.data = lora_A
-        self.lora_B.weight.data = lora_B
+        self.lora_A.data = lora_A
+        self.lora_B.data = lora_B
         weight = weight.data - self.scaling * lora_B @ lora_A
         weight = transpose(weight.to(dtype), self.fan_in_fan_out)
         self.weight.data = weight
@@ -195,8 +202,8 @@ class Linear(nn.Linear, LoRALayer):
 
         lora_A = torch.diag(torch.sqrt(Sr)) @ Uhr
         lora_B = Vr @ torch.diag(torch.sqrt(Sr))
-        self.lora_A.weight.data = lora_A
-        self.lora_B.weight.data = lora_B
+        self.lora_A.data = lora_A
+        self.lora_B.data = lora_B
         weight = weight.data - self.scaling * lora_B @ lora_A
         weight = transpose(weight.to(dtype), self.fan_in_fan_out)
         self.weight.data = weight
