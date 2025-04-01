@@ -1,5 +1,5 @@
 import torch
-from low_rank_adaptations import apply_lora, print_trainable_parameters
+from low_rank_adaptations import apply_lora, apply_pissa, print_trainable_parameters
 from peft import get_peft_model, LoraConfig, TaskType
 
 class GLUEEvalCommon:
@@ -58,6 +58,13 @@ class GLUEEvalCommon:
                 bias="none",
             )
             model = get_peft_model(model, peft_config)
+        elif self.low_rank_adaptation == "PiSSA":
+            model = apply_pissa(
+                model, 
+                self.lora_r, 
+                self.lora_alpha, 
+                self.lora_dropout, 
+            )
         else:
             raise ValueError(f"Invalid or not supported low rank adaptation: {self.low_rank_adaptation}")
 

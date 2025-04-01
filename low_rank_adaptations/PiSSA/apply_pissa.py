@@ -1,7 +1,7 @@
 import torch.nn as nn
-from .loralib import Linear as LoRALinear, LoRALayer
+from .pissalib import Linear as PiSSALinear, LoRALayer
 
-def mark_only_lora_as_trainable(model: nn.Module, bias: str = 'none') -> None:
+def mark_only_pissa_as_trainable(model: nn.Module, bias: str = 'none') -> None:
     for n, p in model.named_parameters():
         if 'lora_' not in n:
             p.requires_grad = False
@@ -20,7 +20,7 @@ def mark_only_lora_as_trainable(model: nn.Module, bias: str = 'none') -> None:
     else:
         raise NotImplementedError
 
-def apply_lora(model, r=128, alpha=128, dropout=0) -> nn.Module:
+def apply_pissa(model, r=128, alpha=128, dropout=0) -> nn.Module:
     for name, module in model.named_modules():
         if isinstance(module, nn.Linear):
             parent = model
@@ -29,7 +29,7 @@ def apply_lora(model, r=128, alpha=128, dropout=0) -> nn.Module:
                 parent = getattr(parent, sub_name)
             old_linear = getattr(parent, sub_names[-1])
 
-            lora_linear = LoRALinear(
+            pissa_linear = PiSSALinear(
                 in_features=old_linear.in_features,
                 out_features=old_linear.out_features,
                 r=r,
@@ -37,9 +37,9 @@ def apply_lora(model, r=128, alpha=128, dropout=0) -> nn.Module:
                 lora_dropout=dropout,
                 bias=old_linear.bias is not None
             )
-            lora_linear.weight.data = old_linear.weight.data.clone()
+            pissa_linear.weight.data = old_linear.weight.data.clone()
             if old_linear.bias is not None:
-                lora_linear.bias.data = old_linear.bias.data.clone()
-            setattr(parent, sub_names[-1], lora_linear)
-    mark_only_lora_as_trainable(model)
+                pissa_linear.bias.data = old_linear.bias.data.clone()
+            setattr(parent, sub_names[-1], pissa_linear)
+    mark_only_pissa_as_trainable(model)
     return model
