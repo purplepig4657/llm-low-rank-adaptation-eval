@@ -369,19 +369,3 @@ class Conv3d(ConvLoRA):
     def __init__(self, *args, **kwargs):
         super(Conv3d, self).__init__(nn.Conv3d, *args, **kwargs)
         
-
-def print_trainable_parameters(model):
-    """
-    Prints the number of trainable parameters in the model.
-    """
-    trainable_params = 0
-    all_params = 0
-    for _, param in model.named_parameters():
-        all_params += param.numel()
-        if param.requires_grad:
-            trainable_params += param.numel()
-    print(
-        f"trainable params: {trainable_params} || all params: {all_params} || "
-        f"trainable%: {100 * trainable_params / all_params:.2f}%"
-    )
-

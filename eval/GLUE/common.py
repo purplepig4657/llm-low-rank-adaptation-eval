@@ -1,4 +1,5 @@
 import torch
+from torch import nn
 from low_rank_adaptations import apply_lora, apply_pissa, print_trainable_parameters
 from peft import get_peft_model, LoraConfig, TaskType
 
@@ -65,6 +66,21 @@ class GLUEEvalCommon:
                 self.lora_alpha, 
                 self.lora_dropout, 
             )
+        elif self.low_rank_adaptation == "PiSSA_HF":
+            self.linear_layer_names = []
+            for name, module in self.model.named_modules():
+                if isinstance(module, nn.Linear):
+                    self.linear_layer_names.append(name)
+
+            peft_config = LoraConfig(
+                task_type=TaskType.SEQ_CLS,
+                r=self.lora_r,
+                lora_alpha=self.lora_alpha,
+                lora_dropout=self.lora_dropout,
+                init_lora_weights="pissa",
+                bias="none",
+            )
+            model = get_peft_model(model, peft_config)
         else:
             raise ValueError(f"Invalid or not supported low rank adaptation: {self.low_rank_adaptation}")
 
