@@ -78,6 +78,17 @@ class GLUEEvalCommon:
                 bias="none",
             )
             model = get_peft_model(model, peft_config)
+        elif self.low_rank_adaptation == "DoRA_HF":
+            peft_config = LoraConfig(
+                task_type=TaskType.SEQ_CLS,
+                r=self.lora_r,
+                lora_alpha=self.lora_alpha,
+                lora_dropout=self.lora_dropout,
+                use_dora=True,
+                target_modules=self.linear_layer_names,
+                bias="none",
+            )
+            model = get_peft_model(model, peft_config)
         else:
             raise ValueError(f"Invalid or not supported low rank adaptation: {self.low_rank_adaptation}")
 
