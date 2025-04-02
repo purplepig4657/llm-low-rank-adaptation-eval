@@ -4,7 +4,7 @@ import torch.nn as nn
 def apply_lora_hf(model, task_type: TaskType, r=128, alpha=128, dropout=0) -> nn.Module:
     linear_layer_names = []
     for name, module in model.named_modules():
-        if isinstance(module, nn.Linear):
+        if isinstance(module, nn.Linear) and "classifier" not in name:
             linear_layer_names.append(name)
 
     peft_config = LoraConfig(
