@@ -24,8 +24,6 @@ class STSBEval(GLUEEvalCommon):
         self.tokenizer = AutoTokenizer.from_pretrained(self.model_name)
         self.model = AutoModelForSequenceClassification.from_pretrained(self.model_name, num_labels=1)
 
-        self.model = self.apply_low_rank_adaptation(self.model)
-
         self.dataset = load_dataset(self.DATASET_NAME, self.TASK_NAME)
 
         self.stsb_metric = evaluate.load(self.DATASET_NAME, self.TASK_NAME)
@@ -47,6 +45,17 @@ class STSBEval(GLUEEvalCommon):
             batch_size=self.batch_size, 
             collate_fn=self.data_collator
         )
+
+        if self.low_rank_adaptation.contains("CorDA"):
+            subset_dataset = torch.utils.data.Subset(self.tokenized_dataset["train"], range(256))
+            subset_dataloader = DataLoader(
+                subset_dataset,
+                batch_size=self.batch_size,
+                collate_fn=self.data_collator
+            )
+            self.model = self.apply_low_rank_adaptation(self.model, subset_dataloader)
+        else:
+            self.model = self.apply_low_rank_adaptation(self.model)
 
         self.optimizer = AdamW(self.model.parameters(), lr=self.learning_rate)
 

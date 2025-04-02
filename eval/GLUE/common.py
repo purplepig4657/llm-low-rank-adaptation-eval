@@ -1,6 +1,6 @@
 import torch
 from torch import nn
-from low_rank_adaptations import apply_lora, apply_pissa, apply_lora_hf, apply_pissa_hf, apply_dora_hf, print_trainable_parameters
+from low_rank_adaptations import apply_lora, apply_pissa, apply_lora_hf, apply_pissa_hf, apply_dora_hf, init_and_apply_corda_hf, print_trainable_parameters
 from peft import get_peft_model, LoraConfig, TaskType
 
 class GLUEEvalCommon:
@@ -34,7 +34,7 @@ class GLUEEvalCommon:
         self.device = device
         self.apply_lra = apply_lra
 
-    def apply_low_rank_adaptation(self, model):
+    def apply_low_rank_adaptation(self, model, corda_method: "ipm" | "kpm" = "ipm", calib_loader=None):
         if not self.apply_lra:
             return model
 
@@ -72,6 +72,15 @@ class GLUEEvalCommon:
                 self.lora_r, 
                 self.lora_alpha, 
                 self.lora_dropout, 
+            )
+        elif self.low_rank_adaptation == "CorDA_HF":
+            if calib_loader is None:
+                raise ValueError("Calibration loader is required for CorDA_HF")
+
+            model = init_and_apply_corda_hf(
+                model, 
+                calib_loader, 
+                corda_method=corda_method, 
             )
         else:
             raise ValueError(f"Invalid or not supported low rank adaptation: {self.low_rank_adaptation}")
