@@ -13,7 +13,7 @@ from transformers import AutoTokenizer, AutoModelForSequenceClassification
 
 from eval.GLUE.common import GLUEEvalCommon
 
-class RTETrainer(GLUEEvalCommon):
+class RTEEval(GLUEEvalCommon):
     DATASET_NAME = "glue"
     TASK_NAME = "rte"
 

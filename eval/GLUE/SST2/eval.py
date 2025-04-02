@@ -13,7 +13,7 @@ from transformers import AutoTokenizer, AutoModelForSequenceClassification
 
 from eval.GLUE.common import GLUEEvalCommon
 
-class SST2Trainer(GLUEEvalCommon):
+class SST2Eval(GLUEEvalCommon):
     DATASET_NAME = "glue"
     TASK_NAME = "sst2"
 

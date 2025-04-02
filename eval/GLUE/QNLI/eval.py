@@ -13,7 +13,7 @@ from transformers import AutoTokenizer, AutoModelForSequenceClassification
 
 from eval.GLUE.common import GLUEEvalCommon
 
-class QNLITrainer(GLUEEvalCommon):
+class QNLIEval(GLUEEvalCommon):
     DATASET_NAME = "glue"
     TASK_NAME = "qnli"
 

@@ -1,7 +1,7 @@
 import torch
-from torch import nn
 from low_rank_adaptations import apply_lora, apply_pissa, apply_lora_hf, apply_pissa_hf, apply_dora_hf, init_and_apply_corda_hf, print_trainable_parameters
-from peft import get_peft_model, LoraConfig, TaskType
+from peft import TaskType
+import gc
 
 class GLUEEvalCommon:
     def __init__(
@@ -92,3 +92,17 @@ class GLUEEvalCommon:
         print_trainable_parameters(model)
 
         return model
+
+    def cleanup(self):
+        if torch.cuda.is_available():
+            torch.cuda.empty_cache()
+            torch.cuda.reset_peak_memory_stats()
+            
+        for obj in gc.get_objects():
+            try:
+                if torch.is_tensor(obj):
+                    del obj
+            except:
+                pass
+            
+        gc.collect()
