@@ -17,16 +17,17 @@ def init_and_apply_corda_hf(
     model, 
     calib_loader, 
     corda_method, 
-    r: int = 128, 
-    alpha: int = 128, 
-    dropout: float = 0.0,
+    r: int, 
+    alpha: int, 
+    dropout: float,
+    device: torch.device,
 ):
     if corda_method != "ipm" and corda_method != "kpm":
         raise ValueError(f"Invalid corda method: {corda_method}")
 
     linear_layer_names = []
     for name, module in model.named_modules():
-        if isinstance(module, nn.Linear):
+        if isinstance(module, nn.Linear) and "classifier" not in name:
             linear_layer_names.append(name)
 
     corda_config = CordaConfig(
@@ -42,6 +43,8 @@ def init_and_apply_corda_hf(
         target_modules=linear_layer_names,
         corda_config=corda_config,
     )
+
+    model.to(device)
 
     preprocess_corda(model, lora_config, run_model=lambda: run_model(model, calib_loader))
 

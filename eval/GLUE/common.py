@@ -85,6 +85,10 @@ class GLUEEvalCommon:
                 model, 
                 calib_loader, 
                 corda_method=corda_method, 
+                r=self.lora_r,
+                alpha=self.lora_alpha,
+                dropout=self.lora_dropout,
+                device=self.device,
             )
         else:
             raise ValueError(f"Invalid or not supported low rank adaptation: {self.low_rank_adaptation}")
