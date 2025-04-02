@@ -16,7 +16,7 @@ def init_and_apply_corda_hf(
     task_type: TaskType,
     model, 
     calib_loader, 
-    corda_method: "ipm" | "kpm", 
+    corda_method, 
     r: int = 128, 
     alpha: int = 128, 
     dropout: float = 0.0,

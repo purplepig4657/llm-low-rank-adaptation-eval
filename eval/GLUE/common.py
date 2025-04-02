@@ -34,7 +34,7 @@ class GLUEEvalCommon:
         self.device = device
         self.apply_lra = apply_lra
 
-    def apply_low_rank_adaptation(self, model, corda_method: "ipm" | "kpm" = "ipm", calib_loader=None):
+    def apply_low_rank_adaptation(self, model, corda_method = "ipm", calib_loader=None):
         if not self.apply_lra:
             return model
 
