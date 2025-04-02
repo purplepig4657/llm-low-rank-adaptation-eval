@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 from tqdm import tqdm
-from peft import get_peft_model
+from peft import get_peft_model, TaskType
 from peft.tuners.lora.config import CordaConfig, LoraConfig
 from peft.tuners.lora.corda import preprocess_corda
 
@@ -13,6 +13,7 @@ def run_model(model, calib_loader):
         model(**batch)
 
 def init_and_apply_corda_hf(
+    task_type: TaskType,
     model, 
     calib_loader, 
     corda_method: "ipm" | "kpm", 
@@ -33,6 +34,7 @@ def init_and_apply_corda_hf(
     )
 
     lora_config = LoraConfig(
+        task_type=task_type,
         init_lora_weights="corda",
         r=r,
         lora_alpha=alpha,
