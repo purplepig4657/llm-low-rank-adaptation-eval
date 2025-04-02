@@ -13,8 +13,8 @@ def run_model(model, calib_loader):
         model(**batch)
 
 def init_and_apply_corda_hf(
-    task_type: TaskType,
     model, 
+    task_type: TaskType,
     calib_loader, 
     corda_method, 
     r: int, 

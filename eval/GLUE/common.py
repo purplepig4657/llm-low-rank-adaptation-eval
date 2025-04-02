@@ -47,8 +47,8 @@ class GLUEEvalCommon:
             )
         elif self.low_rank_adaptation == "LoRA_HF":
             model = apply_lora_hf(
-                TaskType.SEQ_CLS,
                 model, 
+                TaskType.SEQ_CLS,
                 self.lora_r, 
                 self.lora_alpha, 
                 self.lora_dropout, 
@@ -62,16 +62,16 @@ class GLUEEvalCommon:
             )
         elif self.low_rank_adaptation == "PiSSA_HF":
             model = apply_pissa_hf(
-                TaskType.SEQ_CLS,
                 model, 
+                TaskType.SEQ_CLS,
                 self.lora_r, 
                 self.lora_alpha, 
                 self.lora_dropout, 
             )
         elif self.low_rank_adaptation == "DoRA_HF":
             model = apply_dora_hf(
-                TaskType.SEQ_CLS,
                 model, 
+                TaskType.SEQ_CLS,
                 self.lora_r, 
                 self.lora_alpha, 
                 self.lora_dropout, 
@@ -81,8 +81,8 @@ class GLUEEvalCommon:
                 raise ValueError("Calibration loader is required for CorDA_HF")
 
             model = init_and_apply_corda_hf(
-                TaskType.SEQ_CLS,
                 model, 
+                TaskType.SEQ_CLS,
                 calib_loader, 
                 corda_method=corda_method, 
                 r=self.lora_r,

@@ -108,3 +108,8 @@ class SST2Eval(GLUEEvalCommon):
 
         result = self.sst2_metric.compute()
         print(result)
+
+        result["task"] = "sst2"
+        result["low_rank_adaptation"] = self.low_rank_adaptation
+
+        return result

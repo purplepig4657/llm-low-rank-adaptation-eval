@@ -110,3 +110,8 @@ class STSBEval(GLUEEvalCommon):
 
         result = self.stsb_metric.compute()
         print(result)
+
+        result["task"] = "stsb"
+        result["low_rank_adaptation"] = self.low_rank_adaptation
+
+        return result

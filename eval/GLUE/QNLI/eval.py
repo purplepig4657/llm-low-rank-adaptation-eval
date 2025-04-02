@@ -109,3 +109,8 @@ class QNLIEval(GLUEEvalCommon):
 
         result = self.qnli_metric.compute()
         print(result)
+
+        result["task"] = "qnli"
+        result["low_rank_adaptation"] = self.low_rank_adaptation
+
+        return result

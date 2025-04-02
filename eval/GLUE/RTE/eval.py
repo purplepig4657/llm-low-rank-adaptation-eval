@@ -109,3 +109,8 @@ class RTEEval(GLUEEvalCommon):
 
         result = self.rte_metric.compute()
         print(result)
+
+        result["task"] = "rte"
+        result["low_rank_adaptation"] = self.low_rank_adaptation
+
+        return result

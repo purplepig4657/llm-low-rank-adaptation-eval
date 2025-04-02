@@ -109,3 +109,8 @@ class MRPCEval(GLUEEvalCommon):
 
         result = self.mrpc_metric.compute()
         print(result)
+
+        result["task"] = "mrpc"
+        result["low_rank_adaptation"] = self.low_rank_adaptation
+
+        return result

@@ -108,3 +108,8 @@ class CoLAEval(GLUEEvalCommon):
 
         result = self.cola_metric.compute()
         print(result)
+
+        result["task"] = "cola"
+        result["low_rank_adaptation"] = self.low_rank_adaptation
+
+        return result
