@@ -1,6 +1,6 @@
 import torch
 from torch import nn
-from low_rank_adaptations import apply_lora, apply_pissa, print_trainable_parameters
+from low_rank_adaptations import apply_lora, apply_pissa, apply_lora_hf, apply_pissa_hf, apply_dora_hf, print_trainable_parameters
 from peft import get_peft_model, LoraConfig, TaskType
 
 class GLUEEvalCommon:
@@ -37,11 +37,6 @@ class GLUEEvalCommon:
     def apply_low_rank_adaptation(self, model):
         if not self.apply_lra:
             return model
-        
-        self.linear_layer_names = []
-        for name, module in self.model.named_modules():
-            if isinstance(module, nn.Linear):
-                self.linear_layer_names.append(name)
 
         if self.low_rank_adaptation == "LoRA":
             model = apply_lora(
@@ -51,15 +46,12 @@ class GLUEEvalCommon:
                 self.lora_dropout, 
             )
         elif self.low_rank_adaptation == "LoRA_HF":
-            peft_config = LoraConfig(
-                task_type=TaskType.SEQ_CLS,
-                r=self.lora_r,
-                lora_alpha=self.lora_alpha,
-                lora_dropout=self.lora_dropout,
-                target_modules=self.linear_layer_names,
-                bias="none",
+            model = apply_lora_hf(
+                model, 
+                self.lora_r, 
+                self.lora_alpha, 
+                self.lora_dropout, 
             )
-            model = get_peft_model(model, peft_config)
         elif self.low_rank_adaptation == "PiSSA":
             model = apply_pissa(
                 model, 
@@ -68,27 +60,19 @@ class GLUEEvalCommon:
                 self.lora_dropout, 
             )
         elif self.low_rank_adaptation == "PiSSA_HF":
-            peft_config = LoraConfig(
-                task_type=TaskType.SEQ_CLS,
-                r=self.lora_r,
-                lora_alpha=self.lora_alpha,
-                lora_dropout=self.lora_dropout,
-                init_lora_weights="pissa",
-                target_modules=self.linear_layer_names,
-                bias="none",
+            model = apply_pissa_hf(
+                model, 
+                self.lora_r, 
+                self.lora_alpha, 
+                self.lora_dropout, 
             )
-            model = get_peft_model(model, peft_config)
         elif self.low_rank_adaptation == "DoRA_HF":
-            peft_config = LoraConfig(
-                task_type=TaskType.SEQ_CLS,
-                r=self.lora_r,
-                lora_alpha=self.lora_alpha,
-                lora_dropout=self.lora_dropout,
-                use_dora=True,
-                target_modules=self.linear_layer_names,
-                bias="none",
+            model = apply_dora_hf(
+                model, 
+                self.lora_r, 
+                self.lora_alpha, 
+                self.lora_dropout, 
             )
-            model = get_peft_model(model, peft_config)
         else:
             raise ValueError(f"Invalid or not supported low rank adaptation: {self.low_rank_adaptation}")
 

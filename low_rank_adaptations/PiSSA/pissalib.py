@@ -35,6 +35,18 @@ class LoRALayer():
         self.merged = False
         self.merge_weights = merge_weights
 
+    def get_base_layer(self) -> nn.Module:
+        """
+        (Recursively) get the base_layer.
+
+        This is necessary for the case that the tuner layer wraps another tuner layer.
+
+        """
+        base_layer = self
+        while hasattr(base_layer, "base_layer"):
+            base_layer = base_layer.base_layer
+        return base_layer
+
 
 class Embedding(nn.Embedding, LoRALayer):
     # LoRA implemented in a dense layer
@@ -95,7 +107,7 @@ class Embedding(nn.Embedding, LoRALayer):
             return nn.Embedding.forward(self, x)
 
     def pissa_init(self):
-        weight = self.weight
+        weight = self.get_base_layer().weight
         dtype = weight.dtype
         if dtype not in [torch.float32, torch.float16, torch.bfloat16]:
             raise TypeError(
@@ -116,22 +128,10 @@ class Embedding(nn.Embedding, LoRALayer):
         self.lora_B.data = lora_B
         weight = weight.data - self.scaling * lora_B @ lora_A
         weight = transpose(weight.to(dtype), self.fan_in_fan_out)
-        self.weight.data = weight
+        self.get_base_layer().weight.data = weight
             
 
 class Linear(nn.Linear, LoRALayer):
-    def get_base_layer(self) -> nn.Module:
-        """
-        (Recursively) get the base_layer.
-
-        This is necessary for the case that the tuner layer wraps another tuner layer.
-
-        """
-        base_layer = self
-        while hasattr(base_layer, "base_layer"):
-            base_layer = base_layer.base_layer
-        return base_layer
-
     # LoRA implemented in a dense layer
     def __init__(
         self, 
