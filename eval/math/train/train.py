@@ -72,7 +72,8 @@ class MathTrain(MathCommon):
         self.model = AutoModelForCausalLM.from_pretrained(
             self.model_name,
             device_map="auto",
-            trust_remote_code=True
+            trust_remote_code=True,
+            torch_dtype=torch.bfloat16
         )
 
 
