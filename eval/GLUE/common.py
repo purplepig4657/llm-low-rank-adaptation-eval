@@ -90,6 +90,8 @@ class GLUEEvalCommon:
                 dropout=self.lora_dropout,
                 device=self.device,
             )
+        elif self.low_rank_adaptation == "full":
+            pass
         else:
             raise ValueError(f"Invalid or not supported low rank adaptation: {self.low_rank_adaptation}")
 

@@ -15,6 +15,7 @@ TASK_TO_CLASS = {
 }
 
 LRA_LIST = [
+    "full",
     "LoRA_HF",
     "PiSSA_HF",
     "CorDA_HF",
@@ -52,6 +53,7 @@ def evaluate_task(task_name: str, low_rank_adaptation: str, args: argparse.Names
     task_class = TASK_TO_CLASS[task_name]
     task = task_class(
         low_rank_adaptation=low_rank_adaptation,
+        apply_lra=low_rank_adaptation != "full",
         lora_r=args.lora_r,
         lora_alpha=args.lora_alpha,
         lora_dropout=args.lora_dropout,
@@ -76,14 +78,12 @@ def main():
     for task_name in args.eval_tasks:
         for low_rank_adaptation in args.low_rank_adaptations:
             result = evaluate_task(task_name, low_rank_adaptation, args)
-            # 결과를 리스트에 추가
             results.append({
                 "task": task_name,
                 "adaptation": low_rank_adaptation,
                 "result": result
             })
     
-    # 결과를 txt 파일로 저장
     with open("glue_evaluation_results.txt", "w") as f:
         f.write(f"GLUE Evaluation Results (seed={args.seed})\n")
         f.write("="*50 + "\n\n")
