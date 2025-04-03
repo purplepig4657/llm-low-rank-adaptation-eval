@@ -3,8 +3,9 @@ import numpy as np
 import torch
 
 from eval.GLUE.CoLA.eval import CoLAEval
+from eval.math.train.train import MathTrain
 
-def set_seed(seed=42):
+def set_seed(seed=0):
     random.seed(seed)
     np.random.seed(seed)
     torch.manual_seed(seed)
@@ -12,9 +13,8 @@ def set_seed(seed=42):
     torch.backends.cudnn.deterministic = True
     torch.backends.cudnn.benchmark = False
 
-set_seed(42)
+set_seed(0)
 
 
-cola_eval = CoLAEval()
-cola_eval.train()
-cola_eval.eval()
+math_train = MathTrain(low_rank_adaptation="LoRA_HF")
+math_train.train()
