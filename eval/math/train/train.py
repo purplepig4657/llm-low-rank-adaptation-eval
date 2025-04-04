@@ -155,4 +155,4 @@ class MathTrain(MathCommon):
         self.model.config.use_cache = False
         trainer.train()
         trainer.save_state()
-        self.model.save_pretrained(os.path.join(self.output_dir,'ft'))
+        self.model.save_pretrained(os.path.join('results', f'{self.model_name}_{self.low_rank_adaptation}'))
