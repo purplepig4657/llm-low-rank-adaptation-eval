@@ -32,6 +32,7 @@ def init_and_apply_corda_hf(
 
     corda_config = CordaConfig(
         corda_method=corda_method,
+        use_float16_for_covariance=True,
     )
 
     lora_config = LoraConfig(
