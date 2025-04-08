@@ -1,8 +1,16 @@
 import random
 import numpy as np
 import torch
-
 from eval.math.train import MathTrain
+
+LRA_LIST = [
+    # "full",
+    "LoRA_HF",
+    "PiSSA_HF",
+    "CorDA_HF",
+    "DoRA_HF",
+]
+
 
 def set_seed(seed=0):
     random.seed(seed)
@@ -15,5 +23,7 @@ def set_seed(seed=0):
 set_seed(0)
 
 
-math_train = MathTrain(low_rank_adaptation="DoRA_HF", lora_r=32, lora_alpha=32)
-math_train.train()
+for lra in LRA_LIST:
+    math_train = MathTrain(low_rank_adaptation=lra, lora_r=32, lora_alpha=32)
+    math_train.train()
+    math_train.cleanup()

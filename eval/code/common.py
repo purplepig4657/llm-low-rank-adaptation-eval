@@ -10,7 +10,7 @@ class MathCommon:
         model_max_length = 512,
         dataset_split = "train[:100000]",
         optim = "adamw_torch",
-        dataset_field = ["query", "response"],
+        dataset_field = ["query", "answer"],
         num_epochs = 1,
         weight_decay = 0.0,
         warmup_ratio = 0.03,

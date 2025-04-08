@@ -54,7 +54,7 @@ class MathTrain(MathCommon):
         )
         self.tokenizer.pad_token_id = self.tokenizer.eos_token_id
 
-        raw_train_datasets = load_dataset("meta-math/MetaMathQA", split=self.dataset_split)
+        raw_train_datasets = load_dataset("m-a-p/CodeFeedback-Filtered-Instruction ", split=self.dataset_split)
         train_dataset = raw_train_datasets.map(
             self.train_tokenize_function,
             batched=True,
@@ -71,14 +71,13 @@ class MathTrain(MathCommon):
 
         self.model = AutoModelForCausalLM.from_pretrained(
             self.model_name,
-            device_map="auto",
+            device_map="cuda",
             trust_remote_code=True,
-            torch_dtype=torch.bfloat16
+            torch_dtype=torch.bfloat16,
         )
 
-
         if "CorDA" in self.low_rank_adaptation:
-            subset_dataset = torch.utils.data.Subset(train_dataset["train"], range(256))
+            subset_dataset = torch.utils.data.Subset(train_dataset, range(256))
             subset_dataloader = DataLoader(
                 subset_dataset,
                 batch_size=1,
@@ -134,16 +133,15 @@ class MathTrain(MathCommon):
 
     def train(self):
         training_args = TrainingArguments(
-            output_dir=f"results/{self.model_name}_{self.low_rank_adaptation}",
+            output_dir=f"results/{self.model_name}_{self.low_rank_adaptation}_checkpoint",
             num_train_epochs=self.num_epochs,
             lr_scheduler_type=self.lr_scheduler,
             warmup_ratio=self.warmup_ratio,
-            # per_device_train_batch_size=self.batch_size,
-            # per_device_eval_batch_size=self.batch_size,
             learning_rate=self.learning_rate,
             weight_decay=self.weight_decay,
             logging_steps=10,
             gradient_accumulation_steps=self.gradient_accumulation_steps,
+            gradient_checkpointing=True,
         )
 
         trainer = Trainer(
@@ -154,5 +152,7 @@ class MathTrain(MathCommon):
         )
         self.model.config.use_cache = False
         trainer.train()
-        trainer.save_state()
+        trainer.save_state()  # save checkpoint for resuming training
+
+        # saving model for inference
         self.model.save_pretrained(os.path.join('results', f'{self.model_name}_{self.low_rank_adaptation}'))
