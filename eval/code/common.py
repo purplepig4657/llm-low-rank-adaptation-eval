@@ -3,7 +3,7 @@ from low_rank_adaptations import apply_lora, apply_pissa, apply_lora_hf, apply_p
 from peft import TaskType
 import gc
 
-class MathCommon:
+class CodeCommon:
     def __init__(
         self,
         model_name = "meta-llama/Meta-Llama-3-8B", 

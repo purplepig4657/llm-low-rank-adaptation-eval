@@ -5,7 +5,7 @@ from dataclasses import dataclass
 from typing import Dict, Sequence
 from datasets import load_dataset
 from transformers import AutoTokenizer, AutoModelForCausalLM
-from eval.math.common import MathCommon
+from eval.code.common import CodeCommon
 from transformers import Trainer, TrainingArguments
 from torch.utils.data import DataLoader
 import os
@@ -32,7 +32,7 @@ class DataCollatorForSupervisedDataset(object):
             attention_mask=input_ids.ne(self.tokenizer.pad_token_id),
         )
 
-class MathTrain(MathCommon):
+class CodeTrain(CodeCommon):
 
     IGNORE_INDEX = -100
 
@@ -54,7 +54,7 @@ class MathTrain(MathCommon):
         )
         self.tokenizer.pad_token_id = self.tokenizer.eos_token_id
 
-        raw_train_datasets = load_dataset("m-a-p/CodeFeedback-Filtered-Instruction ", split=self.dataset_split)
+        raw_train_datasets = load_dataset("m-a-p/CodeFeedback-Filtered-Instruction", split=self.dataset_split)
         train_dataset = raw_train_datasets.map(
             self.train_tokenize_function,
             batched=True,
@@ -133,7 +133,7 @@ class MathTrain(MathCommon):
 
     def train(self):
         training_args = TrainingArguments(
-            output_dir=f"results/{self.model_name}_{self.low_rank_adaptation}_checkpoint",
+            output_dir=f"results/code/{self.model_name}_{self.low_rank_adaptation}_r{self.lora_r}_checkpoint",
             num_train_epochs=self.num_epochs,
             lr_scheduler_type=self.lr_scheduler,
             warmup_ratio=self.warmup_ratio,
@@ -155,4 +155,4 @@ class MathTrain(MathCommon):
         trainer.save_state()  # save checkpoint for resuming training
 
         # saving model for inference
-        self.model.save_pretrained(os.path.join('results', f'{self.model_name}_{self.low_rank_adaptation}'))
+        self.model.save_pretrained(os.path.join('results', 'code', f'{self.model_name}_{self.low_rank_adaptation}_r{self.lora_r}'))

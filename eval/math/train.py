@@ -133,7 +133,7 @@ class MathTrain(MathCommon):
 
     def train(self):
         training_args = TrainingArguments(
-            output_dir=f"results/{self.model_name}_{self.low_rank_adaptation}_r{self.lora_r}_checkpoint",
+            output_dir=f"results/math/{self.model_name}_{self.low_rank_adaptation}_r{self.lora_r}_checkpoint",
             num_train_epochs=self.num_epochs,
             lr_scheduler_type=self.lr_scheduler,
             warmup_ratio=self.warmup_ratio,
@@ -155,4 +155,4 @@ class MathTrain(MathCommon):
         trainer.save_state()  # save checkpoint for resuming training
 
         # saving model for inference
-        self.model.save_pretrained(os.path.join('results', f'{self.model_name}_{self.low_rank_adaptation}_r{self.lora_r}'))
+        self.model.save_pretrained(os.path.join('results', 'math', f'{self.model_name}_{self.low_rank_adaptation}_r{self.lora_r}'))
