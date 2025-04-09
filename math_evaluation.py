@@ -37,6 +37,17 @@ def parse_args():
                        help='Evaluation tasks (space-separated list)')
     parser.add_argument('--low_rank_adaptations', nargs='+', default=LRA_TO_MODEL_PATH.keys(), type=str, 
                        help='Low rank adaptations (space-separated list)')
+    
+    # Add arguments for each model path
+    parser.add_argument('--lora_model_path', default=LRA_TO_MODEL_PATH["LoRA_HF"], type=str,
+                        help='Path to the LoRA model')
+    parser.add_argument('--pissa_model_path', default=LRA_TO_MODEL_PATH["PiSSA_HF"], type=str,
+                        help='Path to the PiSSA model')
+    parser.add_argument('--corda_model_path', default=LRA_TO_MODEL_PATH["CorDA_HF"], type=str,
+                        help='Path to the CorDA model')
+    parser.add_argument('--dora_model_path', default=LRA_TO_MODEL_PATH["DoRA_HF"], type=str,
+                        help='Path to the DoRA model')
+    
     return parser.parse_args()
 
 def evaluate_task(task_name: str, model_path: str):
@@ -49,6 +60,14 @@ def evaluate_task(task_name: str, model_path: str):
 def main():
     args = parse_args()
     results = []
+
+    LRA_TO_MODEL_PATH = {
+        "LoRA_HF": args.lora_model_path,
+        "PiSSA_HF": args.pissa_model_path,
+        "CorDA_HF": args.corda_model_path,
+        "DoRA_HF": args.dora_model_path,
+    }
+
     for task_name in args.eval_tasks:
         for low_rank_adaptation in args.low_rank_adaptations:
             result = evaluate_task(task_name, LRA_TO_MODEL_PATH[low_rank_adaptation])
