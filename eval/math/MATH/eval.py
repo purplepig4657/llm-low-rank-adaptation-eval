@@ -1,4 +1,6 @@
 import jsonlines
+import torch
+import gc
 
 from eval.math.util import util
 from vllm import LLM, SamplingParams
@@ -6,14 +8,14 @@ import sys
 MAX_INT = sys.maxsize
 INVALID_ANS = "[invalid]"
 
-class MathEval:
+class MATHEval:
     def __init__(
         self, 
         model,  # model path
-        data_path, 
+        data_path = "eval/math/MATH/data/MATH_test.jsonl", 
         start=0, 
         end=MAX_INT, 
-        batch_size=1, 
+        batch_size=50, 
         tensor_parallel_size=1
     ):
         self.model = model
@@ -114,7 +116,21 @@ class MathEval:
         print('len invalid outputs ====', len(self.invalid_outputs), ', valid_outputs===', self.invalid_outputs)
         print('start===', self.start, ', end====',self.end)
         print('length====', len(results), ', acc====', acc)
-        return acc
+        return {'metric': 'acc', 'value': acc}
 
     def eval(self):
         return self.test_hendrycks_math()
+
+    def cleanup(self):
+        if torch.cuda.is_available():
+            torch.cuda.empty_cache()
+            torch.cuda.reset_peak_memory_stats()
+            
+        for obj in gc.get_objects():
+            try:
+                if torch.is_tensor(obj):
+                    del obj
+            except:
+                pass
+            
+        gc.collect()

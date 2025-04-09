@@ -155,4 +155,6 @@ class CodeTrain(CodeCommon):
         trainer.save_state()  # save checkpoint for resuming training
 
         # saving model for inference
+        self.model = self.model.merge_and_unload()
         self.model.save_pretrained(os.path.join('results', 'code', f'{self.model_name}_{self.low_rank_adaptation}_r{self.lora_r}'))
+        self.tokenizer.save_pretrained(os.path.join('results', 'code', f'{self.model_name}_{self.low_rank_adaptation}_r{self.lora_r}'))
