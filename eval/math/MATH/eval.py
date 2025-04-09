@@ -113,7 +113,8 @@ class MATHEval:
             results.append(res)
 
         acc = sum(results) / len(results)
-        print('len invalid outputs ====', len(self.invalid_outputs), ', valid_outputs===', self.invalid_outputs)
+        print('valid_outputs===', self.invalid_outputs)
+        print('len invalid outputs ====', len(self.invalid_outputs))
         print('start===', self.start, ', end====',self.end)
         print('length====', len(results), ', acc====', acc)
         return {'metric': 'acc', 'value': acc}

@@ -142,7 +142,8 @@ class GSM8KEval:
                 temp = {'question': prompt, 'output': completion, 'answer': prompt_answer}
                 invalid_outputs.append(temp)
         acc = sum(result) / len(result)
-        print('len invalid outputs ====', len(invalid_outputs), ', valid_outputs===', invalid_outputs)
+        print('valid_outputs===', invalid_outputs)
+        print('len invalid outputs ====', len(invalid_outputs))
         print('start===', self.start, ', end====', self.end)
         print('gsm8k length====', len(result), ', gsm8k acc====', acc)
         return acc
