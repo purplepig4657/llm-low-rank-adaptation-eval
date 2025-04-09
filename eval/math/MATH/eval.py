@@ -74,7 +74,8 @@ class MATHEval:
         problem_prompt = (
             "Below is an instruction that describes a task. "
             "Write a response that appropriately completes the request.\n\n"
-            "### Instruction:\n{instruction}\n\n### Response: Let's think step by step."
+            "### Instruction:\n{instruction}\n\nAfter providing your solution, write 'The answer is: ' followed by the final answer.\n\n"
+            "### Response: Let's think step by step. "
         )
         print('promt =====', problem_prompt)
         with open(self.data_path, "r+", encoding="utf8") as f:
