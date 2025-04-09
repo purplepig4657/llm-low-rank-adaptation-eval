@@ -1,3 +1,4 @@
+import multiprocessing
 import random
 import numpy as np
 import torch
@@ -16,9 +17,12 @@ def set_seed(seed=0):
 set_seed(0)
 
 
-# math_train = MathTrain(low_rank_adaptation="DoRA_HF", lora_r=32, lora_alpha=32)
+# math_train = MathTrain(low_rank_adaptation="LoRA_HF", lora_r=128, lora_alpha=128)
 # math_train.train()
 
-math_eval = MATHEval(model="./results/math/meta-llama/Meta-Llama-3-8B_CorDA_HF_r32/adapter_model.safetensors", data_path="eval/math/MATH/math_data.jsonl")
-acc = math_eval.eval()
-print(acc)
+if __name__ == "__main__":
+    multiprocessing.set_start_method("spawn", force=True)
+
+    math_eval = MATHEval(model="./results/math/meta-llama/Meta-Llama-3-8B_LoRA_HF_r128", data_path="/root/thk_tmp/llm-low-rank-adaptation-eval/eval/math/MATH/data/MATH_test_small.jsonl", batch_size=50)
+    acc = math_eval.eval()
+    print(acc)
