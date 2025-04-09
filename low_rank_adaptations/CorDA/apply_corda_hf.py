@@ -45,7 +45,7 @@ def init_and_apply_corda_hf(
         corda_config=corda_config,
     )
 
-    model.to(device)
+    # model.to(device)
 
     preprocess_corda(model, lora_config, run_model=lambda: run_model(model, calib_loader))
 
