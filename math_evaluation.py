@@ -1,3 +1,5 @@
+import os
+
 import random
 import numpy as np
 import torch
@@ -20,6 +22,8 @@ LRA_TO_MODEL_PATH = {
     "CorDA_HF": "results/math/meta-llama/Meta-Llama-3-8B_CorDA_HF_r32",
     "DoRA_HF": "results/math/meta-llama/Meta-Llama-3-8B_DoRA_HF_r32",
 }
+
+os.environ["VLLM_WORKER_MULTIPROC_METHOD"] = "spawn"
 
 def set_seed(seed=42):
     random.seed(seed)
@@ -47,6 +51,8 @@ def parse_args():
                         help='Path to the CorDA model')
     parser.add_argument('--dora_model_path', default=LRA_TO_MODEL_PATH["DoRA_HF"], type=str,
                         help='Path to the DoRA model')
+    parser.add_argument('--output_file', default="math_evaluation_results.txt", type=str,
+                        help='Path to the output file')
     
     return parser.parse_args()
 
@@ -68,23 +74,26 @@ def main():
         "DoRA_HF": args.dora_model_path,
     }
 
+    # Initialize the file with header
+    with open(args.output_file, "w") as f:
+        f.write(f"Math Evaluation Results\n")
+        f.write("="*50 + "\n\n")
+
     for task_name in args.eval_tasks:
         for low_rank_adaptation in args.low_rank_adaptations:
             result = evaluate_task(task_name, LRA_TO_MODEL_PATH[low_rank_adaptation])
-            results.append({
+            result_data = {
                 "task": task_name,
                 "adaptation": low_rank_adaptation,
                 "result": result
-            })
+            }
+            results.append(result_data)
 
-    with open("math_evaluation_results.txt", "w") as f:
-        f.write(f"Math Evaluation Results\n")
-        f.write("="*50 + "\n\n")
-        
-        for res in results:
-            f.write(f"Task: {res['task']}\n")
-            f.write(f"Low-Rank Adaptation: {res['adaptation']}\n")
-            f.write(f"Result: {res['result']}\n")
+            # Append the result to file immediately after each task completes
+            with open(args.output_file, "a") as f:
+                f.write(f"Task: {result_data['task']}\n")
+                f.write(f"Low-Rank Adaptation: {result_data['adaptation']}\n")
+                f.write(f"Result: {result_data['result']}\n\n")
 
 if __name__ == "__main__":
     main()
