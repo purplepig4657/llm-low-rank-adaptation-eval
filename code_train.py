@@ -35,7 +35,6 @@ def parse_args():
     parser.add_argument('--num_epochs', default=1, type=int, help='Number of epochs')
     parser.add_argument('--learning_rate', default=2e-5, type=float, help='Learning rate')
     parser.add_argument('--batch_size', default=1, type=int, help='Batch size')
-    parser.add_argument('--max_length', default=128, type=int, help='Max length')
     parser.add_argument('--seed', default=0, type=int, help='Seed')
     parser.add_argument('--model_name', default="meta-llama/Meta-Llama-3-8B", type=str, help='Model name')
     parser.add_argument('--model_max_length', default=512, type=int, help='Model max length')
@@ -62,7 +61,6 @@ if __name__ == "__main__":
             num_epochs=args.num_epochs, 
             learning_rate=args.learning_rate, 
             batch_size=args.batch_size, 
-            max_length=args.max_length,
             model_name=args.model_name,
             model_max_length=args.model_max_length,
             dataset_split=args.dataset_split,
