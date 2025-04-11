@@ -118,7 +118,7 @@ class MATHEval:
         print('len invalid outputs ====', len(self.invalid_outputs))
         print('start===', self.start, ', end====',self.end)
         print('length====', len(results), ', acc====', acc)
-        return {'metric': 'acc', 'value': acc}
+        return {'metric': 'accuracy', 'value': acc}
 
     def eval(self):
         return self.test_hendrycks_math()

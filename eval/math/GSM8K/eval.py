@@ -152,7 +152,7 @@ class GSM8KEval:
 
     def eval(self):
         acc = self.gsm8k_test()
-        return {'metric': 'acc', 'acc': acc}
+        return {'metric': 'accuracy', 'value': acc}
 
     def cleanup(self):
         if torch.cuda.is_available():
